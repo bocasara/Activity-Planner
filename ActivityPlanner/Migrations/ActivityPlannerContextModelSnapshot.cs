@@ -43,10 +43,6 @@ namespace ActivityPlanner.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -65,7 +61,6 @@ namespace ActivityPlanner.Migrations
                             Budget = 20m,
                             Description = "",
                             InvitationCode = "FRIDAY1",
-                            Location = "A",
                             Name = "Friday crew"
                         });
                 });

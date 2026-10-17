@@ -8,7 +8,7 @@
         public int UserId { get; set; }
         public User User { get; set; } = null!;
         public GroupRole Role { get; set; } = GroupRole.Member;
-        public MembershipStatus Status { get; set; } = MembershipStatus.Approved;
+        public MembershipStatus Status { get; set; } = MembershipStatus.Pending;
         public DateTime JoinedAt { get; set; } = DateTime.UtcNow;
 
     }

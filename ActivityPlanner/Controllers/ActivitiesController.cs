@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ActivityPlanner.Repositories;
+﻿using ActivityPlanner.DTOs;
+using ActivityPlanner.Mappings;
 using ActivityPlanner.Models;
-using ActivityPlanner.Data;
-
+using ActivityPlanner.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ActivityPlanner.Controllers
 {
@@ -10,8 +10,8 @@ namespace ActivityPlanner.Controllers
     [ApiController]
     public class ActivitiesController : ControllerBase
     {
-       
         private readonly ActivityRepository _activityRepository;
+
         public ActivitiesController(ActivityRepository activityRepository)
         {
             _activityRepository = activityRepository;
@@ -24,7 +24,6 @@ namespace ActivityPlanner.Controllers
         }
 
         [HttpGet("{activityId}")]
-
         public async Task<ActionResult<PlannedActivity>> GetActivityById(int activityId)
         {
             var activity = await _activityRepository.GetActivityById(activityId);
@@ -37,34 +36,23 @@ namespace ActivityPlanner.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<PlannedActivity>> CreateActivity(PlannedActivity newActivity)
+        public async Task<ActionResult<PlannedActivity>> CreateActivity(CreateActivityDto dto)
         {
-            if (newActivity == null)
-            {
-                return BadRequest();
-            }
-
-            await _activityRepository.CreateActivity(newActivity);
-            return CreatedAtAction(nameof(GetActivityById), new { activityId = newActivity.Id }, newActivity);
-
+            var activity = dto.ToEntity();
+            var created = await _activityRepository.CreateActivity(activity);
+            return CreatedAtAction(nameof(GetActivityById), new { activityId = created.Id }, created);
         }
 
-
         [HttpPut("{activityId}")]
-        public async Task<IActionResult> UpdateActivity(int activityId, PlannedActivity updatedActivity)
+        public async Task<IActionResult> UpdateActivity(int activityId, UpdateActivityDto dto)
         {
-            if (updatedActivity == null)
-            {
-                return BadRequest();
-            }
-
             var activity = await _activityRepository.GetActivityById(activityId);
             if (activity == null)
             {
                 return NotFound();
             }
-            await _activityRepository.UpdateActivity(activityId, updatedActivity);
 
+            await _activityRepository.UpdateActivity(activity, dto);
             return NoContent();
         }
 
@@ -76,9 +64,9 @@ namespace ActivityPlanner.Controllers
             {
                 return NotFound();
             }
-            await _activityRepository.RemoveActivity(activityId);
-            return NoContent();
 
+            await _activityRepository.DeleteActivity(activity);
+            return NoContent();
         }
     }
 }

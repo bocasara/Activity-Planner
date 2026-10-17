@@ -34,17 +34,16 @@ namespace ActivityPlanner.Migrations
                 name: "Groups",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
+                    GroupId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Budget = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     InvitationCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Groups", x => x.Id);
+                    table.PrimaryKey("PK_Groups", x => x.GroupId);
                 });
 
             migrationBuilder.CreateTable(
@@ -80,7 +79,7 @@ namespace ActivityPlanner.Migrations
                         name: "FK_GroupMembers_Groups_GroupId",
                         column: x => x.GroupId,
                         principalTable: "Groups",
-                        principalColumn: "Id",
+                        principalColumn: "GroupId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_GroupMembers_Users_UserId",
@@ -92,8 +91,8 @@ namespace ActivityPlanner.Migrations
 
             migrationBuilder.InsertData(
                 table: "Groups",
-                columns: new[] { "Id", "Budget", "Description", "InvitationCode", "Location", "Name" },
-                values: new object[] { 1, 20m, "", "FRIDAY1", "A", "Friday crew" });
+                columns: new[] { "GroupId", "Budget", "Description", "InvitationCode", "Name" },
+                values: new object[] { 1, 20m, "", "FRIDAY1", "Friday crew" });
 
             migrationBuilder.InsertData(
                 table: "Users",

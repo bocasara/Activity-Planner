@@ -1,5 +1,9 @@
 ﻿using ActivityPlanner.Data;
+using ActivityPlanner.DTOs;
+using ActivityPlanner.Mappings;
 using ActivityPlanner.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace ActivityPlanner.Repositories
 {
     public class ActivityRepository
@@ -11,41 +15,33 @@ namespace ActivityPlanner.Repositories
             _context = context;
         }
 
-        public async Task<List<PlannedActivity>> GetActivities() {
-             return _context.Activities.ToList();
+        public async Task<List<PlannedActivity>> GetActivities()
+        {
+            return await _context.Activities.ToListAsync();
         }
 
         public async Task<PlannedActivity?> GetActivityById(int activityId)
         {
-            var activity = await _context.Activities.FindAsync(activityId);
+            return await _context.Activities.FindAsync(activityId);
+        }
+
+        public async Task<PlannedActivity> CreateActivity(PlannedActivity activity)
+        {
+            _context.Activities.Add(activity);
+            await _context.SaveChangesAsync();
             return activity;
         }
 
-        public async Task CreateActivity(PlannedActivity newActivity)
+        public async Task UpdateActivity(PlannedActivity activity, UpdateActivityDto dto)
         {
-            await _context.Activities.AddAsync(newActivity);
+            dto.ApplyTo(activity);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateActivity(int actvityId, PlannedActivity updatedActivity)
+        public async Task DeleteActivity(PlannedActivity activity)
         {
-            var activity = await _context.Activities.FindAsync(actvityId);
-            activity.Name = updatedActivity.Name;
-            activity.Description = updatedActivity.Description;
-            activity.Price = updatedActivity.Price;
-            activity.Interests = updatedActivity.Interests;
-            activity.Location = updatedActivity.Location;
-            await _context.SaveChangesAsync();
-
-        }
-
-        public async Task RemoveActivity(int actvityId)
-        {
-            var activity = await _context.Activities.FindAsync(actvityId);
             _context.Activities.Remove(activity);
             await _context.SaveChangesAsync();
         }
     }
 }
-
-

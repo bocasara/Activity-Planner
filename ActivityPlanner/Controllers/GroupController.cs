@@ -28,18 +28,18 @@ namespace ActivityPlanner.Controllers
                 return NotFound();
             }
             // if none of the group's member is the caller return 403
-            if (!group.Members.Any(m => m.UserId == CurrentUserId)) return StatusCode(403);
+            if (!group.IsApprovedMember(CurrentUserId)) return StatusCode(403);
             // convert tp Dto
-            return Ok(group.ToDetailsDto());
+            return Ok(group.ToDetailsDto(CurrentUserId));
         }
 
         [HttpPost]
-        public async Task<ActionResult<Group>> CreateGroup(CreateGroupDto dto)
+        public async Task<ActionResult<GroupDetailsDto>> CreateGroup(CreateGroupDto dto)
         {
             var group = dto.DtoToEntity(CurrentUserId);
             var created = await _groupRepository.CreateGroup(group);
             var loaded = await _groupRepository.GetGroupById(created.GroupId);
-            return CreatedAtAction(nameof(CreateGroup), new { groupId = created.GroupId }, loaded!.ToDetailsDto());
+            return CreatedAtAction(nameof(CreateGroup), new { groupId = created.GroupId }, loaded!.ToDetailsDto(CurrentUserId));
         }
 
         [HttpDelete("{groupId}")]
@@ -73,7 +73,7 @@ namespace ActivityPlanner.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{groupId}/memebers/{userid}")]
+        [HttpDelete("{groupId}/members/{userid}")]
         public async Task<IActionResult> KickMember(int groupId, int userId)
         {
             var group = await _groupRepository.GetGroupById(groupId);
@@ -97,6 +97,20 @@ namespace ActivityPlanner.Controllers
             {
                 return NotFound();
             }
+
+            if (!group.Members.Any(m => m.UserId == CurrentUserId)) return NotFound();
+
+            if (group.IsLastAdmin(CurrentUserId))
+            {
+                if(group.Members.Count == 1) 
+                {
+                  await _groupRepository.DeleteGroup(group);
+                    return NoContent();
+
+                }
+                return Conflict("You are the last admin of this group and cannot leave it Promote another member before leaving.");
+            }
+            
 
             await _groupRepository.RemoveMember(CurrentUserId ,groupId);
             return NoContent();

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ActivityPlanner.Migrations
 {
     [DbContext(typeof(ActivityPlannerContext))]
-    [Migration("20261014110129_ValueComparer")]
-    partial class ValueComparer
+    [Migration("20261017112043_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -46,10 +46,6 @@ namespace ActivityPlanner.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -68,7 +64,6 @@ namespace ActivityPlanner.Migrations
                             Budget = 20m,
                             Description = "",
                             InvitationCode = "FRIDAY1",
-                            Location = "A",
                             Name = "Friday crew"
                         });
                 });

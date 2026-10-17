@@ -1,4 +1,4 @@
- using ActivityPlanner.Data;
+using ActivityPlanner.Data;
 using ActivityPlanner.Repositories;
 using Microsoft.EntityFrameworkCore;
 

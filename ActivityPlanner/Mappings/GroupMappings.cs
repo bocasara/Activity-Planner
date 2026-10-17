@@ -1,4 +1,5 @@
 ﻿using ActivityPlanner.DTOs;
+using ActivityPlanner.Extensions;
 using ActivityPlanner.Models;
 using System.Runtime.CompilerServices;
 
@@ -6,11 +7,13 @@ namespace ActivityPlanner.Mappings
 {
     public static class GroupMappings
     {
-        public static GroupDetailsDto ToDetailsDto(this Group g) => new()
+        public static GroupDetailsDto ToDetailsDto(this Group g, int currentUserId) => new()
         {
             GroupId = g.GroupId,
             Name = g.Name,
             Description = g.Description,
+            Budget = g.Budget,
+            InvitationCode = g.IsAdmin(currentUserId) ? g.InvitationCode : null,
             Members = g.Members.Select(m => new GroupMemberDto
             {
                 UserId = m.UserId,
