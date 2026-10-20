@@ -6,7 +6,7 @@ namespace ActivityPlanner.Mappings
 {
     public static class ActivityMappings
     {
-        public static PlannedActivity ToEntity(this CreateActivityDto dto) => new()
+        public static Activity ToEntity(this CreateActivityDto dto) => new()
         {
 
             Name = dto.Name,
@@ -17,7 +17,7 @@ namespace ActivityPlanner.Mappings
 
         };
 
-        public static void ApplyTo(this UpdateActivityDto dto, PlannedActivity activity)
+        public static void ApplyTo(this UpdateActivityDto dto, Activity activity)
         {
             activity.Name = dto.Name;
             activity.Description = dto.Description;

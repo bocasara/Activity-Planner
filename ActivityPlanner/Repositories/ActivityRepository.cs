@@ -15,30 +15,30 @@ namespace ActivityPlanner.Repositories
             _context = context;
         }
 
-        public async Task<List<PlannedActivity>> GetActivities()
+        public async Task<List<Activity>> GetActivities()
         {
             return await _context.Activities.ToListAsync();
         }
 
-        public async Task<PlannedActivity?> GetActivityById(int activityId)
+        public async Task<Activity?> GetActivityById(int activityId)
         {
             return await _context.Activities.FindAsync(activityId);
         }
 
-        public async Task<PlannedActivity> CreateActivity(PlannedActivity activity)
+        public async Task<Activity> CreateActivity(Activity activity)
         {
             _context.Activities.Add(activity);
             await _context.SaveChangesAsync();
             return activity;
         }
 
-        public async Task UpdateActivity(PlannedActivity activity, UpdateActivityDto dto)
+        public async Task UpdateActivity(Activity activity, UpdateActivityDto dto)
         {
             dto.ApplyTo(activity);
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteActivity(PlannedActivity activity)
+        public async Task DeleteActivity(Activity activity)
         {
             _context.Activities.Remove(activity);
             await _context.SaveChangesAsync();

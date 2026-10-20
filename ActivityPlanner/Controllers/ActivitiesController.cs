@@ -18,13 +18,13 @@ namespace ActivityPlanner.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<PlannedActivity>>> GetActivities()
+        public async Task<ActionResult<List<Activity>>> GetActivities()
         {
             return Ok(await _activityRepository.GetActivities());
         }
 
         [HttpGet("{activityId}")]
-        public async Task<ActionResult<PlannedActivity>> GetActivityById(int activityId)
+        public async Task<ActionResult<Activity>> GetActivityById(int activityId)
         {
             var activity = await _activityRepository.GetActivityById(activityId);
             if (activity == null)
@@ -36,7 +36,7 @@ namespace ActivityPlanner.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<PlannedActivity>> CreateActivity(CreateActivityDto dto)
+        public async Task<ActionResult<Activity>> CreateActivity(CreateActivityDto dto)
         {
             var activity = dto.ToEntity();
             var created = await _activityRepository.CreateActivity(activity);

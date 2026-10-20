@@ -31,6 +31,12 @@ namespace ActivityPlanner.Repositories
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Group?> GetGroupByInvitationCode(string invitationCode)
+        {
+            var group = await _context.Groups.Include(g => g.Members).ThenInclude(m => m.User).FirstOrDefaultAsync(g => g.InvitationCode == invitationCode);
+            return group;
+        }
+
         public async Task<bool> RemoveMember(int userId, int groupId)
         {
             var groupMember = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
@@ -44,6 +50,12 @@ namespace ActivityPlanner.Repositories
 
         public async Task UpdateGroup(Group group)
         {
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddMember(GroupMember groupMember)
+        {
+            _context.GroupMembers.Add(groupMember);
             await _context.SaveChangesAsync();
         }
 

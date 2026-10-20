@@ -9,12 +9,14 @@ namespace ActivityPlanner.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GroupController : ControllerBase
+    public class GroupsController : ControllerBase
     {
         private readonly GroupRepository _groupRepository;
-        public GroupController(GroupRepository groupRepository)
+        private readonly UserRepository _userRepository;
+        public GroupsController(GroupRepository groupRepository, UserRepository userRepository  )
         {
             _groupRepository = groupRepository;
+            _userRepository = userRepository;
         }
 
         // temporary stand in for auth
@@ -39,7 +41,7 @@ namespace ActivityPlanner.Controllers
             var group = dto.DtoToEntity(CurrentUserId);
             var created = await _groupRepository.CreateGroup(group);
             var loaded = await _groupRepository.GetGroupById(created.GroupId);
-            return CreatedAtAction(nameof(CreateGroup), new { groupId = created.GroupId }, loaded!.ToDetailsDto(CurrentUserId));
+            return CreatedAtAction(nameof(GetGroupById), new { groupId = created.GroupId }, loaded!.ToDetailsDto(CurrentUserId));
         }
 
         [HttpDelete("{groupId}")]
@@ -72,6 +74,7 @@ namespace ActivityPlanner.Controllers
             await _groupRepository.UpdateGroup(group);
             return NoContent();
         }
+       
 
         [HttpDelete("{groupId}/members/{userid}")]
         public async Task<IActionResult> KickMember(int groupId, int userId)
@@ -85,7 +88,10 @@ namespace ActivityPlanner.Controllers
 
             if(userId == CurrentUserId) return BadRequest();
 
-            await _groupRepository.RemoveMember(userId, groupId);
+            if( !await _groupRepository.RemoveMember(userId, groupId) )
+            {
+                return NotFound();
+            }
             return NoContent();
         }
 
@@ -116,7 +122,51 @@ namespace ActivityPlanner.Controllers
             return NoContent();
         }
 
+        [HttpPost("join/{invitationCode}")]
+        public async Task<ActionResult<GroupDetailsDto>> JoinGroup(string invitationCode)
+        {
+            var group = await _groupRepository.GetGroupByInvitationCode(invitationCode);
+            if (group == null)
+            {
+                return NotFound();
+            }
+
+            if (group.Members.Any(m => m.UserId == CurrentUserId))
+            {
+                return Conflict("You are already a member of this group.");
+            }
+
+            var groupMember = group.ToGroupMember(CurrentUserId);
+            await _groupRepository.AddMember(groupMember);
+
+            var loaded = await _groupRepository.GetGroupById(group.GroupId);
+            return Ok(loaded!.ToDetailsDto(CurrentUserId));
+        }
+
+        [HttpPost("{groupId}/members")]
+        public async Task<IActionResult> AddMember(int groupId, AddMemberDto dto)
+        {
+            var group = await _groupRepository.GetGroupById(groupId);
+            if (group == null)
+            {
+                return NotFound();
+            }
+            if (!group.IsAdmin(CurrentUserId)) return StatusCode(403);
+
+            var user = await _userRepository.GetUserByUsername(dto.Username);
+            if (user == null) return NotFound("User not found.");
+
+            if (group.Members.Any(m => m.UserId == user.UserId))
+                return Conflict("User is already a member of this group.");
+
+            var groupMember = group.ToGroupMember(user.UserId);
+            await _groupRepository.AddMember(groupMember);
+
+            var loaded = await _groupRepository.GetGroupById(group.GroupId);
+            return Ok(loaded!.ToDetailsDto(CurrentUserId));
+        }
+
+
        
-        
     }
 }

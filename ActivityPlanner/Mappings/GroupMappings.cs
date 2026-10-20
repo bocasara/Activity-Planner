@@ -18,6 +18,7 @@ namespace ActivityPlanner.Mappings
             {
                 UserId = m.UserId,
                 Username = m.User.Username,
+                GroupId = m.GroupId,
                 Role = m.Role,
                 JoinedAt = m.JoinedAt,
                 MembershipStatus = m.Status
@@ -50,6 +51,17 @@ namespace ActivityPlanner.Mappings
             group.Budget = dto.Budget;
 
         }
+
+        public static GroupMember ToGroupMember(this Group group, int userId) => new()
+        {
+            UserId = userId,
+            GroupId = group.GroupId,
+            Role = GroupRole.Member,
+            JoinedAt = DateTime.UtcNow,
+            Status = MembershipStatus.Approved
+        };
+
+
 
     }
 }

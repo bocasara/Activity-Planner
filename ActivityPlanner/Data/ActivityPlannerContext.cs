@@ -8,7 +8,7 @@ namespace ActivityPlanner.Data
 
 
 
-        public DbSet<PlannedActivity> Activities { get; set; }
+        public DbSet<Activity> Activities { get; set; }
         public DbSet<Group> Groups { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<GroupMember> GroupMembers { get; set; }
@@ -33,7 +33,7 @@ namespace ActivityPlanner.Data
                 .Property(g => g.Budget)
                 .HasPrecision(18, 2);
 
-            modelBuilder.Entity<PlannedActivity>()
+            modelBuilder.Entity<Activity>()
                 .Property(a => a.Price)
                 .HasPrecision(18, 2);
 
@@ -52,6 +52,15 @@ namespace ActivityPlanner.Data
             modelBuilder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+               .HasIndex(u => u.Email)
+               .IsUnique();
+
 
             modelBuilder.Entity<GroupMember>()
                 .Property(gm => gm.Role)
@@ -80,7 +89,7 @@ namespace ActivityPlanner.Data
                           .Select(e => Enum.Parse<Interests>(e)).ToList()
                 ).Metadata.SetValueComparer(interestsComparer);
 
-            modelBuilder.Entity<PlannedActivity>()
+            modelBuilder.Entity<Activity>()
                 .Property(a => a.Interests)
                 .HasConversion(
                     v => string.Join(',', v.Select(e => e.ToString())),
