@@ -3,24 +3,26 @@ using ActivityPlanner.Extensions;
 using ActivityPlanner.Mappings;
 using ActivityPlanner.Models;
 using ActivityPlanner.Repositories;
+using ActivityPlanner.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ActivityPlanner.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GroupsController : ControllerBase
+    [Authorize]
+    public class GroupsController(GroupRepository groupRepository, UserRepository userRepository, RecommendationService recommendationService, ActivityRepository activityRepository) : ControllerBase
     {
-        private readonly GroupRepository _groupRepository;
-        private readonly UserRepository _userRepository;
-        public GroupsController(GroupRepository groupRepository, UserRepository userRepository  )
-        {
-            _groupRepository = groupRepository;
-            _userRepository = userRepository;
-        }
+        private readonly GroupRepository _groupRepository = groupRepository;
+        private readonly UserRepository _userRepository = userRepository;
+        private readonly RecommendationService _recommendationService = recommendationService;
+        private readonly ActivityRepository _activityRepository = activityRepository;
 
-        // temporary stand in for auth
-        private int CurrentUserId => int.Parse(Request.Headers["X-User-Id"]!);
+        private int CurrentUserId =>
+                   int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                       ??
+                       User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)!.Value);
 
         [HttpGet("{groupId}")]
         public async Task<ActionResult<GroupDetailsDto>> GetGroupById(int groupId)
@@ -166,7 +168,37 @@ namespace ActivityPlanner.Controllers
             return Ok(loaded!.ToDetailsDto(CurrentUserId));
         }
 
+        [HttpPut("{groupId}/preferences")]
+        public async Task<IActionResult> SetPreferences(int groupId, GroupPreferenceDto dto)
+        {
+            var group = await _groupRepository.GetGroupById(groupId);
+            if (group == null) return NotFound();
+            if (!group.IsAdmin(CurrentUserId))
+                return StatusCode(403);
+            group.Location = dto.Location;
+            group.Budget = dto.Budget;
 
+            await _groupRepository.UpdateGroup(group);
+            return Ok(group.ToDetailsDto(CurrentUserId));
+        }
+
+        [HttpGet("{groupId}/recommendations")]
+        public async Task<ActionResult<List<RecommendedActivityDto>>> GetRecommendations(int groupId, decimal? budget, Location? location)
+        {
+            var group = await _groupRepository.GetGroupById(groupId);
+            if (group == null) return NotFound();
+
+            if (budget == null || location == null)
+                return BadRequest("A budget and a location are required.");
+            if (budget < 0)
+                return BadRequest("Budget cannot be negative.");
+            var users = group.Members
+               .Where(m => m.Status == MembershipStatus.Approved)
+               .Select(m => m.User);
+            var activities = await _activityRepository.GetActivities();
+
+            return Ok(_recommendationService.Recommend(users, activities, budget.Value, location.Value));
+        }
        
     }
 }

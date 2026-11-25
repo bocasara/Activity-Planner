@@ -4,13 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ActivityPlanner.Repositories
 {
-    public class UserRepository
+    public class UserRepository(ActivityPlannerContext context)
     {
-        private readonly ActivityPlannerContext _context;
-        public UserRepository(ActivityPlannerContext context)
-        {
-            _context = context;
-        }
+        private readonly ActivityPlannerContext _context = context;
 
         public async Task<User?> GetUserById(int userId)
         {

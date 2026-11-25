@@ -1,4 +1,5 @@
 ﻿using ActivityPlanner.Models;
+using Microsoft.AspNetCore.Components.Routing;
 using System.Text.Json.Serialization;
 
 namespace ActivityPlanner.DTOs
@@ -8,8 +9,9 @@ namespace ActivityPlanner.DTOs
         public int GroupId { get; set; }
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
-        public decimal Budget { get; set; }
-        public List<GroupMemberDto> Members { get; set; } = new();
+        public decimal? Budget { get; set; }
+        public Location? Location { get; set; }
+        public List<GroupMemberDto> Members { get; set; } = [];
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public string? InvitationCode { get; set; }

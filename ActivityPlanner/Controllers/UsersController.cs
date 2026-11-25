@@ -2,6 +2,7 @@
 using ActivityPlanner.Mappings;
 using ActivityPlanner.Models;
 using ActivityPlanner.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,6 +10,7 @@ namespace ActivityPlanner.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UsersController : ControllerBase
     {
         private readonly UserRepository _userRepository;
@@ -19,7 +21,10 @@ namespace ActivityPlanner.Controllers
             _passwordHasher = passwordHasher;
         }
 
-        private int CurrentUserId => int.Parse(Request.Headers["X-User-Id"]!);
+        private int CurrentUserId =>
+            int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                ??
+                User.FindFirst(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub)!.Value);
 
         [HttpGet("me")]
         public async Task<ActionResult<UserDetailsDto>> GetMe()
@@ -31,13 +36,14 @@ namespace ActivityPlanner.Controllers
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<UserDetailsDto>> CreateUser(CreateUserDto dto)
         {
-            if (await _userRepository.EmailExists(dto.Email, CurrentUserId))
+            if (await _userRepository.EmailExists(dto.Email))
             {
                 return Conflict("Email already exists.");
             }
-            if(await _userRepository.UsernameExists(dto.Username, CurrentUserId))
+            if(await _userRepository.UsernameExists(dto.Username))
             {
                 return Conflict("Username already exists.");
             }

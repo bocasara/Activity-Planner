@@ -9,8 +9,5 @@ namespace ActivityPlanner.DTOs
         public string Name { get; set; } = null!;
         [StringLength(500)]
         public string Description { get; set; } = "";
-        [Range(0, 100000)]
-        public decimal Budget { get; set; }
-
     }
 }

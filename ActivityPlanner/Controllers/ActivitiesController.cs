@@ -2,20 +2,17 @@
 using ActivityPlanner.Mappings;
 using ActivityPlanner.Models;
 using ActivityPlanner.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ActivityPlanner.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ActivitiesController : ControllerBase
+    [Authorize]
+    public class ActivitiesController(ActivityRepository activityRepository) : ControllerBase
     {
-        private readonly ActivityRepository _activityRepository;
-
-        public ActivitiesController(ActivityRepository activityRepository)
-        {
-            _activityRepository = activityRepository;
-        }
+        private readonly ActivityRepository _activityRepository = activityRepository;
 
         [HttpGet]
         public async Task<ActionResult<List<Activity>>> GetActivities()

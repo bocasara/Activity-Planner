@@ -12,7 +12,7 @@ namespace ActivityPlanner.Mappings
             Name = dto.Name,
             Description = dto.Description,
             Price = dto.Price,
-            Location = dto.Location,
+            Location = dto.Location.Value,
             Interests = dto.Interests
 
         };
@@ -22,8 +22,23 @@ namespace ActivityPlanner.Mappings
             activity.Name = dto.Name;
             activity.Description = dto.Description;
             activity.Price = dto.Price;
-            activity.Location = dto.Location;
+            activity.Location = dto.Location.Value;
             activity.Interests = dto.Interests;
         }
+
+        public static RecommendedActivityDto ToRecommendedDto(this Activity a, int matchedMembers, int totalMembers, int overlapCount,List<Interests> sharedInterests) => new()
+        {
+            ActivityId = a.Id,
+            Name = a.Name,
+            Description = a.Description,
+            Price = a.Price,
+            Location = a.Location,
+            Interests = a.Interests.ToList(),
+            MatchedMembers = matchedMembers,
+            TotalMembers = totalMembers,
+            OverlapCount = overlapCount,
+            SharedInterests = sharedInterests,
+            ScorePercent = totalMembers == 0 ? 0 : (int)Math.Round(100.0 * matchedMembers / totalMembers)
+        };
     }
 }

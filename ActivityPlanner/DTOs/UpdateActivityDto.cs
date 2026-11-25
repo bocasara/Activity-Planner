@@ -12,9 +12,8 @@ namespace ActivityPlanner.DTOs
         [Range(0, 100000)]
         public decimal Price { get; set; }
         [Required]
-        [StringLength(100)]
-        public string Location { get; set; } = null!;
+        public Location? Location { get; set; } = null!;
         [MinLength(1, ErrorMessage = "At least one interest must be selected.")]
-        public List<Interests> Interests { get; set; } = new();
+        public List<Interests> Interests { get; set; } = [];
     }
 }

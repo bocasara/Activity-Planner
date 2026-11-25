@@ -30,7 +30,6 @@ namespace ActivityPlanner.Mappings
 
             Name = dto.Name,
             Description = dto.Description,
-            Budget = dto.Budget,
             InvitationCode = Guid.NewGuid().ToString("N")[..8].ToUpper(),
             Members =
             {
@@ -48,8 +47,6 @@ namespace ActivityPlanner.Mappings
         {
             group.Name = dto.Name;
             group.Description = dto.Description;
-            group.Budget = dto.Budget;
-
         }
 
         public static GroupMember ToGroupMember(this Group group, int userId) => new()

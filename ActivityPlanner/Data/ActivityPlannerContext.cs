@@ -70,6 +70,14 @@ namespace ActivityPlanner.Data
                 .Property(gm => gm.Status)
                 .HasConversion<string>();
 
+            modelBuilder.Entity<Activity>()
+                .Property(a => a.Location)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Group>()
+                .Property(g => g.Location)
+                .HasConversion<string>();
+
             // EF compares values to decide whether a propery changed, and for a list it only compares the reference so it won't see if i add a new interest
             // A value comparer tells ef how to compare and copy the list
 
@@ -104,7 +112,7 @@ namespace ActivityPlanner.Data
               new User { UserId = 3, Username = "dana", Email = "dana@test.com", PasswordHash = "placeholder", Interests = [Interests.Outdoors, Interests.Food] });
 
             modelBuilder.Entity<Group>().HasData(
-                new Group { GroupId = 1, Name = "Friday crew", Description = "", Budget = 20, InvitationCode = "FRIDAY1" });
+                new Group { GroupId = 1, Name = "Friday crew", Description = "", InvitationCode = "FRIDAY1" });
 
             modelBuilder.Entity<GroupMember>().HasData(
                 new GroupMember { GroupId = 1, UserId = 1, Role = GroupRole.Admin, Status = MembershipStatus.Approved, JoinedAt = new DateTime(2026, 10, 1) },
